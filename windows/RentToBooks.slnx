@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="RentToBooks.App/RentToBooks.App.csproj" />
+  <Project Path="RentToBooks.Core.Tests/RentToBooks.Core.Tests.csproj" />
+  <Project Path="RentToBooks.Core/RentToBooks.Core.csproj" />
+</Solution>
