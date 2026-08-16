@@ -81,9 +81,9 @@ public class AppSettingsStore(string settingsPath)
             documents,
             documents,
             ProcessType.Payment,
-            "A11000 - Accounts Receivable",
-            "A12000 - Undeposited Funds",
-            "A47600 - ARB Rental Income");
+            DefaultAccounts.ReceivableAccount,
+            DefaultAccounts.DepositAccount,
+            DefaultAccounts.IncomeAccount);
     }
 
     private sealed record StoredSettings(

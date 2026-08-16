@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InputFileNotFound" xml:space="preserve">
+    <value>Input file was not found: {0}</value>
+  </data>
+  <data name="MissingReceivableAccount" xml:space="preserve">
+    <value>Enter the QuickBooks accounts receivable account name.</value>
+  </data>
+  <data name="MissingDepositAccount" xml:space="preserve">
+    <value>Enter the QuickBooks deposit account name.</value>
+  </data>
+  <data name="MissingIncomeAccount" xml:space="preserve">
+    <value>Enter the QuickBooks income account name.</value>
+  </data>
+  <data name="NoTransactionRows" xml:space="preserve">
+    <value>The selected workbook does not contain rent transaction rows.</value>
+  </data>
+  <data name="HeaderValidationFailed" xml:space="preserve">
+    <value>The selected workbook does not look like the expected rent transaction report.</value>
+  </data>
+  <data name="HeaderColumnMismatch" xml:space="preserve">
+    <value>Column {0} expected '{1}' but found '{2}'</value>
+  </data>
+  <data name="NoRowsFound" xml:space="preserve">
+    <value>No {0} rows were found. Check that the selected workbook has {1}.</value>
+  </data>
+  <data name="InvoiceModeLabel" xml:space="preserve">
+    <value>invoiced amounts in column G</value>
+  </data>
+  <data name="PaymentModeLabel" xml:space="preserve">
+    <value>payment amounts in column I</value>
+  </data>
+  <data name="BuildOnlySupportsSingleType" xml:space="preserve">
+    <value>Build only supports Payment or Invoice, not Both.</value>
+  </data>
+</root>

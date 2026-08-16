@@ -1,21 +1,25 @@
+using RentToBooks.Core.Resources;
+
 namespace RentToBooks.Core;
 
 public static class RentReportHeaderValidator
 {
-    // Column -> expected header text.
+    private const int MinimumRowCount = 2; // header row + at least one data row
+
+    // Column -> expected header text (a contract with the source workbook, not user-facing text).
     private static readonly IReadOnlyDictionary<int, string> Expected = new Dictionary<int, string>
     {
-        [3] = "Tenant",
-        [6] = "Datetime",
-        [7] = "Invoiced",
-        [9] = "Payment",
+        [ReportColumns.Tenant] = ReportColumns.TenantHeader,
+        [ReportColumns.Datetime] = ReportColumns.DatetimeHeader,
+        [ReportColumns.Invoiced] = ReportColumns.InvoicedHeader,
+        [ReportColumns.Payment] = ReportColumns.PaymentHeader,
     };
 
     public static void Assert(IReadOnlyList<XlsxRow> rows)
     {
-        if (rows.Count < 2)
+        if (rows.Count < MinimumRowCount)
         {
-            throw new InvalidOperationException("The selected workbook does not contain rent transaction rows.");
+            throw new InvalidOperationException(CoreMessages.NoTransactionRows);
         }
 
         var header = rows[0];
@@ -25,15 +29,14 @@ public static class RentReportHeaderValidator
             var actual = header.GetText(column);
             if (actual != expectedText)
             {
-                missing.Add($"Column {column} expected '{expectedText}' but found '{actual}'");
+                missing.Add(string.Format(CoreMessages.HeaderColumnMismatch, column, expectedText, actual));
             }
         }
 
         if (missing.Count > 0)
         {
             throw new InvalidOperationException(
-                "The selected workbook does not look like the expected rent transaction report." +
-                Environment.NewLine + string.Join(Environment.NewLine, missing));
+                CoreMessages.HeaderValidationFailed + Environment.NewLine + string.Join(Environment.NewLine, missing));
         }
     }
 }

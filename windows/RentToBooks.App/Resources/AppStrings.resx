@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="WindowTitle" xml:space="preserve"><value>RentToBooks</value></data>
+  <data name="HeadingText" xml:space="preserve"><value>RentToBooks</value></data>
+  <data name="InitialStatus" xml:space="preserve"><value>Choose a rent transaction report and create a QuickBooks IIF file.</value></data>
+
+  <data name="RentReportLabel" xml:space="preserve"><value>Rent report</value></data>
+  <data name="DateLabel" xml:space="preserve"><value>Date</value></data>
+  <data name="DateHint" xml:space="preserve"><value>mmddyyyy</value></data>
+  <data name="ProcessLabel" xml:space="preserve"><value>Process</value></data>
+  <data name="OutputFolderLabel" xml:space="preserve"><value>Output folder</value></data>
+  <data name="ReceivableAccountLabel" xml:space="preserve"><value>A/R account</value></data>
+  <data name="DepositAccountLabel" xml:space="preserve"><value>Deposit account</value></data>
+  <data name="IncomeAccountLabel" xml:space="preserve"><value>Income account</value></data>
+
+  <data name="BrowseButton" xml:space="preserve"><value>Browse...</value></data>
+  <data name="PreviewButton" xml:space="preserve"><value>Preview</value></data>
+  <data name="CreateIifButton" xml:space="preserve"><value>Create IIF</value></data>
+  <data name="OpenFolderButton" xml:space="preserve"><value>Open Folder</value></data>
+  <data name="OpenIifButton" xml:space="preserve"><value>Open IIF</value></data>
+  <data name="CopyPathButton" xml:space="preserve"><value>Copy Path</value></data>
+
+  <data name="ProcessTypePayment" xml:space="preserve"><value>Payment</value></data>
+  <data name="ProcessTypeInvoice" xml:space="preserve"><value>Invoice</value></data>
+  <data name="ProcessTypeBoth" xml:space="preserve"><value>Both</value></data>
+
+  <data name="ChooseReportDialogTitle" xml:space="preserve"><value>Choose rent transaction report</value></data>
+  <data name="ExcelFileFilter" xml:space="preserve"><value>Excel workbooks (*.xlsx)|*.xlsx|All files (*.*)|*.*</value></data>
+  <data name="ChooseOutputFolderDialogTitle" xml:space="preserve"><value>Choose where to save the QuickBooks IIF file</value></data>
+  <data name="ReplaceFileDialogTitle" xml:space="preserve"><value>Replace Existing IIF File</value></data>
+  <data name="ReplaceFileMessageIntro" xml:space="preserve"><value>The following IIF file already exists and will be replaced:</value></data>
+  <data name="ContinuePrompt" xml:space="preserve"><value>Continue?</value></data>
+
+  <data name="DetectedProcessType" xml:space="preserve"><value>Detected {0}: {1} invoice row(s), {2} payment row(s).</value></data>
+  <data name="CouldNotDetectProcessType" xml:space="preserve"><value>Could not detect invoice or payment rows. Choose the process manually.</value></data>
+  <data name="CouldNotAutoDetectProcessType" xml:space="preserve"><value>Could not auto-detect the process. Choose it manually.</value></data>
+  <data name="BuildingPreview" xml:space="preserve"><value>Building preview...</value></data>
+  <data name="PreviewReady" xml:space="preserve"><value>Preview ready.</value></data>
+  <data name="PreviewRowsSummary" xml:space="preserve"><value>Preview rows: {0}</value></data>
+  <data name="SkippedRowsSummary" xml:space="preserve"><value>Skipped rows: {0}</value></data>
+  <data name="ReviewRowsHint" xml:space="preserve"><value>Review the rows below before creating the IIF file.</value></data>
+  <data name="CouldNotBuildPreview" xml:space="preserve"><value>Could not build preview.</value></data>
+  <data name="CreatingIifFile" xml:space="preserve"><value>Creating IIF file...</value></data>
+  <data name="CreateIifCanceled" xml:space="preserve"><value>Create IIF canceled.</value></data>
+  <data name="NoFilesChanged" xml:space="preserve"><value>No files were changed.</value></data>
+  <data name="IifFileCreated" xml:space="preserve"><value>IIF file created.</value></data>
+  <data name="CreatedIifLog" xml:space="preserve"><value>Created QuickBooks IIF file.</value></data>
+  <data name="OutputLog" xml:space="preserve"><value>Output: {0}</value></data>
+  <data name="ProcessedRowsLog" xml:space="preserve"><value>Processed {0} rows: {1}</value></data>
+  <data name="IifFormatNote" xml:space="preserve"><value>The output is plain tab-delimited text with an .iif extension.</value></data>
+  <data name="CouldNotCreateIifFile" xml:space="preserve"><value>Could not create IIF file.</value></data>
+  <data name="OutputPathCopied" xml:space="preserve"><value>Output path copied to clipboard.</value></data>
+  <data name="ChooseReportFirst" xml:space="preserve"><value>Choose a rent transaction report first.</value></data>
+  <data name="ChooseOutputFolderFirst" xml:space="preserve"><value>Choose an output folder first.</value></data>
+  <data name="EnterProcessingDate" xml:space="preserve"><value>Enter the processing date in mmddyyyy format, for example 06262026.</value></data>
+  <data name="InvalidProcessingDate" xml:space="preserve"><value>Enter the date in mmddyyyy format, for example 06122026.</value></data>
+</root>

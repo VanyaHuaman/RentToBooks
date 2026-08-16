@@ -1,13 +1,10 @@
+using RentToBooks.Core.Resources;
+
 namespace RentToBooks.Core;
 
 /// <summary>Builds IIF lines and preview rows for a single Payment or Invoice pass.</summary>
 public static class RentIifDataBuilder
 {
-    private const int TenantColumn = 3;
-    private const int DatetimeColumn = 6;
-    private const int InvoicedColumn = 7;
-    private const int PaymentColumn = 9;
-
     public static RentIifData Build(
         string inputPath,
         DateTime processingDate,
@@ -18,44 +15,49 @@ public static class RentIifDataBuilder
     {
         if (processType == ProcessType.Both)
         {
-            throw new ArgumentException("Build only supports Payment or Invoice, not Both.", nameof(processType));
+            throw new ArgumentException(CoreMessages.BuildOnlySupportsSingleType, nameof(processType));
         }
 
         if (!File.Exists(inputPath))
         {
-            throw new FileNotFoundException($"Input file was not found: {inputPath}", inputPath);
+            throw new FileNotFoundException(
+                string.Format(CoreMessages.InputFileNotFound, inputPath), inputPath);
         }
 
         if (string.IsNullOrWhiteSpace(receivableAccount))
         {
-            throw new InvalidOperationException("Enter the QuickBooks accounts receivable account name.");
+            throw new InvalidOperationException(CoreMessages.MissingReceivableAccount);
         }
 
         if (string.IsNullOrWhiteSpace(depositAccount))
         {
-            throw new InvalidOperationException("Enter the QuickBooks deposit account name.");
+            throw new InvalidOperationException(CoreMessages.MissingDepositAccount);
         }
 
         if (string.IsNullOrWhiteSpace(incomeAccount))
         {
-            throw new InvalidOperationException("Enter the QuickBooks income account name.");
+            throw new InvalidOperationException(CoreMessages.MissingIncomeAccount);
         }
 
         var rows = XlsxReportReader.ReadFirstSheetRows(inputPath);
         RentReportHeaderValidator.Assert(rows);
 
         var isInvoice = processType == ProcessType.Invoice;
-        var transactionType = isInvoice ? "INVOICE" : "PAYMENT";
-        var amountColumn = isInvoice ? InvoicedColumn : PaymentColumn;
+        var transactionType = isInvoice ? IifFormat.InvoiceTransactionType : IifFormat.PaymentTransactionType;
+        var amountColumn = isInvoice ? ReportColumns.Invoiced : ReportColumns.Payment;
         var trnsAccount = isInvoice ? receivableAccount : depositAccount;
         var splAccount = isInvoice ? incomeAccount : receivableAccount;
-        var modeLabel = isInvoice ? "invoiced amounts in column G" : "payment amounts in column I";
+        var modeLabel = isInvoice ? CoreMessages.InvoiceModeLabel : CoreMessages.PaymentModeLabel;
 
         var iifLines = new List<string>
         {
-            IifLine.Build("!TRNS", "TRNSID", "TRNSTYPE", "DATE", "ACCNT", "NAME", "AMOUNT", "DOCNUM"),
-            IifLine.Build("!SPL", "SPLID", "TRNSTYPE", "DATE", "ACCNT", "NAME", "AMOUNT", "DOCNUM"),
-            IifLine.Build("!ENDTRNS", "", "", "", "", "", "", ""),
+            IifLine.Build(
+                IifFormat.TrnsHeaderTag, IifFormat.TrnsIdField, IifFormat.TrnsTypeField, IifFormat.DateField,
+                IifFormat.AccountField, IifFormat.NameField, IifFormat.AmountField, IifFormat.DocNumField),
+            IifLine.Build(
+                IifFormat.SplHeaderTag, IifFormat.SplIdField, IifFormat.TrnsTypeField, IifFormat.DateField,
+                IifFormat.AccountField, IifFormat.NameField, IifFormat.AmountField, IifFormat.DocNumField),
+            IifLine.Build(IifFormat.EndTrnsHeaderTag, "", "", "", "", "", "", ""),
         };
         var previewRows = new List<RentPreviewRow>();
 
@@ -64,7 +66,7 @@ public static class RentIifDataBuilder
 
         foreach (var row in rows.Where(r => r.RowNumber > 1))
         {
-            var tenantValue = TextFormatting.NormalizeName(row.GetText(TenantColumn));
+            var tenantValue = TextFormatting.NormalizeName(row.GetText(ReportColumns.Tenant));
             if (string.IsNullOrWhiteSpace(tenantValue))
             {
                 skippedRows++;
@@ -78,7 +80,7 @@ public static class RentIifDataBuilder
                 continue;
             }
 
-            var dateTimeValue = row.GetText(DatetimeColumn);
+            var dateTimeValue = row.GetText(ReportColumns.Datetime);
             var iifDate = DateFormatting.ToIifDate(dateTimeValue, processingDate);
             const string docNum = "";
             var amount = Math.Abs(currentAmount.Value);
@@ -97,16 +99,18 @@ public static class RentIifDataBuilder
                 docNum,
                 dateTimeValue));
 
-            iifLines.Add(IifLine.Build("TRNS", " ", transactionType, iifDate, trnsAccount, tenantValue, amountText, docNum));
-            iifLines.Add(IifLine.Build("SPL", " ", transactionType, iifDate, splAccount, tenantValue, splitAmountText, docNum));
-            iifLines.Add(IifLine.Build("ENDTRNS", "", "", "", "", "", "", ""));
+            iifLines.Add(IifLine.Build(
+                IifFormat.TrnsRowTag, " ", transactionType, iifDate, trnsAccount, tenantValue, amountText, docNum));
+            iifLines.Add(IifLine.Build(
+                IifFormat.SplRowTag, " ", transactionType, iifDate, splAccount, tenantValue, splitAmountText, docNum));
+            iifLines.Add(IifLine.Build(IifFormat.EndTrnsRowTag, "", "", "", "", "", "", ""));
             processedRows++;
         }
 
         if (processedRows == 0)
         {
             throw new InvalidOperationException(
-                $"No {processType.ToString().ToLowerInvariant()} rows were found. Check that the selected workbook has {modeLabel}.");
+                string.Format(CoreMessages.NoRowsFound, processType.ToString().ToLowerInvariant(), modeLabel));
         }
 
         return new RentIifData(iifLines, previewRows, processedRows, skippedRows);

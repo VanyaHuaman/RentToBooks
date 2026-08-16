@@ -6,10 +6,10 @@ namespace RentToBooks.Core;
 
 public static partial class RentReportConverter
 {
-    private const int TenantColumn = 3;
-    private const int InvoicedColumn = 7;
-    private const int PaymentColumn = 9;
     private const string ProcessingDateFileFormat = "MMddyyyy";
+    private const string InvoiceOutputPrefix = "RentInvoice";
+    private const string PaymentOutputPrefix = "RentPayment";
+    private const string OutputFileExtension = ".iif";
 
     public static RentConversionResult ConvertToIif(
         string inputPath,
@@ -95,14 +95,14 @@ public static partial class RentReportConverter
 
         foreach (var row in rows.Where(r => r.RowNumber > 1))
         {
-            var tenantValue = TextFormatting.NormalizeName(row.GetText(TenantColumn));
+            var tenantValue = TextFormatting.NormalizeName(row.GetText(ReportColumns.Tenant));
             if (string.IsNullOrWhiteSpace(tenantValue))
             {
                 continue;
             }
 
-            var invoiceAmount = AmountParsing.ParseIifAmount(row.GetText(InvoicedColumn));
-            var paymentAmount = AmountParsing.ParseIifAmount(row.GetText(PaymentColumn));
+            var invoiceAmount = AmountParsing.ParseIifAmount(row.GetText(ReportColumns.Invoiced));
+            var paymentAmount = AmountParsing.ParseIifAmount(row.GetText(ReportColumns.Payment));
 
             if (invoiceAmount is not null and not 0m)
             {
@@ -147,9 +147,9 @@ public static partial class RentReportConverter
 
     private static string BuildOutputFileName(ProcessType processType, DateTime processingDate)
     {
-        var prefix = processType == ProcessType.Invoice ? "RentInvoice" : "RentPayment";
+        var prefix = processType == ProcessType.Invoice ? InvoiceOutputPrefix : PaymentOutputPrefix;
         var dateText = processingDate.ToString(ProcessingDateFileFormat, CultureInfo.InvariantCulture);
-        return $"{prefix}{dateText}.iif";
+        return $"{prefix}{dateText}{OutputFileExtension}";
     }
 
     [GeneratedRegex(@"(\d{8})")]

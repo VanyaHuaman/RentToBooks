@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using RentToBooks.App.Resources;
 using RentToBooks.Core;
 using Wpf.Ui.Controls;
 
@@ -11,6 +12,10 @@ namespace RentToBooks.App;
 
 public partial class MainWindow : FluentWindow
 {
+    private const string ExplorerExecutable = "explorer.exe";
+    private const string NotepadExecutable = "notepad.exe";
+    private const string ProcessingDateFormat = "MMddyyyy";
+
     private readonly AppSettingsStore _settingsStore = new();
     private AppSettings _settings;
     private IReadOnlyList<string> _lastOutputPaths = [];
@@ -20,34 +25,35 @@ public partial class MainWindow : FluentWindow
         InitializeComponent();
         Wpf.Ui.Appearance.SystemThemeWatcher.Watch(this);
 
-        ProcessTypeBox.ItemsSource = new[] { "Payment", "Invoice", "Both" };
+        ProcessTypeBox.ItemsSource = ProcessTypeOption.All;
 
         _settings = _settingsStore.Load();
         OutputPathBox.Text = _settings.LastOutputDirectory;
         ReceivableAccountBox.Text = _settings.ReceivableAccount;
         DepositAccountBox.Text = _settings.DepositAccount;
         IncomeAccountBox.Text = _settings.IncomeAccount;
-        ProcessTypeBox.SelectedItem = _settings.ProcessType is ProcessType.Invoice or ProcessType.Both
-            ? _settings.ProcessType.ToString()
-            : "Payment";
+        ProcessTypeBox.SelectedItem = ProcessTypeOption.All.First(option =>
+            option.Value == (_settings.ProcessType is ProcessType.Invoice or ProcessType.Both
+                ? _settings.ProcessType
+                : ProcessType.Payment));
 
         UpdateProcessAccountFields();
     }
 
-    private ProcessType SelectedProcessType => Enum.Parse<ProcessType>((string)ProcessTypeBox.SelectedItem);
+    private ProcessType SelectedProcessType => ((ProcessTypeOption)ProcessTypeBox.SelectedItem).Value;
 
     private void ProcessTypeBox_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
         UpdateProcessAccountFields();
 
     private void UpdateProcessAccountFields()
     {
-        if (ProcessTypeBox.SelectedItem is not string selected)
+        if (ProcessTypeBox.SelectedItem is not ProcessTypeOption selected)
         {
             return;
         }
 
-        var isInvoice = selected == "Invoice";
-        var isBoth = selected == "Both";
+        var isInvoice = selected.Value == ProcessType.Invoice;
+        var isBoth = selected.Value == ProcessType.Both;
 
         DepositLabel.IsEnabled = !isInvoice || isBoth;
         DepositAccountBox.IsEnabled = !isInvoice || isBoth;
@@ -56,17 +62,17 @@ public partial class MainWindow : FluentWindow
 
         if (string.IsNullOrWhiteSpace(ReceivableAccountBox.Text))
         {
-            ReceivableAccountBox.Text = "A11000 - Accounts Receivable";
+            ReceivableAccountBox.Text = DefaultAccounts.ReceivableAccount;
         }
 
         if ((isInvoice || isBoth) && string.IsNullOrWhiteSpace(IncomeAccountBox.Text))
         {
-            IncomeAccountBox.Text = "A47600 - ARB Rental Income";
+            IncomeAccountBox.Text = DefaultAccounts.IncomeAccount;
         }
 
         if ((!isInvoice || isBoth) && string.IsNullOrWhiteSpace(DepositAccountBox.Text))
         {
-            DepositAccountBox.Text = "A12000 - Undeposited Funds";
+            DepositAccountBox.Text = DefaultAccounts.DepositAccount;
         }
 
         PreviewGrid.ItemsSource = null;
@@ -78,8 +84,8 @@ public partial class MainWindow : FluentWindow
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Choose rent transaction report",
-            Filter = "Excel workbooks (*.xlsx)|*.xlsx|All files (*.*)|*.*",
+            Title = AppStrings.ChooseReportDialogTitle,
+            Filter = AppStrings.ExcelFileFilter,
             CheckFileExists = true,
         };
         if (!string.IsNullOrWhiteSpace(_settings.LastInputDirectory) && Directory.Exists(_settings.LastInputDirectory))
@@ -100,18 +106,19 @@ public partial class MainWindow : FluentWindow
             var detected = RentReportConverter.DetectProcessType(dialog.FileName);
             if (detected.ProcessType is { } processType)
             {
-                ProcessTypeBox.SelectedItem = processType.ToString();
-                StatusText.Text =
-                    $"Detected {processType}: {detected.InvoiceRows} invoice row(s), {detected.PaymentRows} payment row(s).";
+                ProcessTypeBox.SelectedItem = ProcessTypeOption.All.First(option => option.Value == processType);
+                var displayText = ProcessTypeOption.All.First(option => option.Value == processType).DisplayText;
+                StatusText.Text = string.Format(
+                    AppStrings.DetectedProcessType, displayText, detected.InvoiceRows, detected.PaymentRows);
             }
             else
             {
-                StatusText.Text = "Could not detect invoice or payment rows. Choose the process manually.";
+                StatusText.Text = AppStrings.CouldNotDetectProcessType;
             }
         }
         catch (Exception ex)
         {
-            StatusText.Text = "Could not auto-detect the process. Choose it manually.";
+            StatusText.Text = AppStrings.CouldNotAutoDetectProcessType;
             LogBox.Text = ex.Message;
         }
 
@@ -124,7 +131,7 @@ public partial class MainWindow : FluentWindow
 
     private void BrowseOutput_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFolderDialog { Title = "Choose where to save the QuickBooks IIF file" };
+        var dialog = new OpenFolderDialog { Title = AppStrings.ChooseOutputFolderDialogTitle };
         if (!string.IsNullOrWhiteSpace(OutputPathBox.Text) && Directory.Exists(OutputPathBox.Text))
         {
             dialog.InitialDirectory = OutputPathBox.Text;
@@ -152,12 +159,12 @@ public partial class MainWindow : FluentWindow
     {
         if (string.IsNullOrWhiteSpace(InputPathBox.Text))
         {
-            throw new InvalidOperationException("Choose a rent transaction report first.");
+            throw new InvalidOperationException(AppStrings.ChooseReportFirst);
         }
 
         if (string.IsNullOrWhiteSpace(OutputPathBox.Text))
         {
-            throw new InvalidOperationException("Choose an output folder first.");
+            throw new InvalidOperationException(AppStrings.ChooseOutputFolderFirst);
         }
 
         return new FormInput(
@@ -174,13 +181,13 @@ public partial class MainWindow : FluentWindow
     {
         if (string.IsNullOrWhiteSpace(text))
         {
-            throw new InvalidOperationException("Enter the processing date in mmddyyyy format, for example 06262026.");
+            throw new InvalidOperationException(AppStrings.EnterProcessingDate);
         }
 
         if (!DateTime.TryParseExact(
-                text, "MMddyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                text, ProcessingDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
         {
-            throw new InvalidOperationException("Enter the date in mmddyyyy format, for example 06122026.");
+            throw new InvalidOperationException(AppStrings.InvalidProcessingDate);
         }
 
         return date;
@@ -201,7 +208,7 @@ public partial class MainWindow : FluentWindow
     private async void PreviewButton_Click(object sender, RoutedEventArgs e)
     {
         PreviewButton.IsEnabled = false;
-        StatusText.Text = "Building preview...";
+        StatusText.Text = AppStrings.BuildingPreview;
         LogBox.Text = "";
 
         try
@@ -212,17 +219,17 @@ public partial class MainWindow : FluentWindow
                 input.ReceivableAccount, input.DepositAccount, input.IncomeAccount));
 
             PreviewGrid.ItemsSource = data.PreviewRows;
-            StatusText.Text = "Preview ready.";
+            StatusText.Text = AppStrings.PreviewReady;
             LogBox.Text = string.Join(
                 Environment.NewLine,
-                $"Preview rows: {data.ProcessedRows}",
-                $"Skipped rows: {data.SkippedRows}",
-                "Review the rows below before creating the IIF file.");
+                string.Format(AppStrings.PreviewRowsSummary, data.ProcessedRows),
+                string.Format(AppStrings.SkippedRowsSummary, data.SkippedRows),
+                AppStrings.ReviewRowsHint);
             SaveSettings(input);
         }
         catch (Exception ex)
         {
-            StatusText.Text = "Could not build preview.";
+            StatusText.Text = AppStrings.CouldNotBuildPreview;
             PreviewGrid.ItemsSource = null;
             LogBox.Text = ex.Message;
         }
@@ -239,7 +246,7 @@ public partial class MainWindow : FluentWindow
         OpenFolderButton.IsEnabled = false;
         OpenIifButton.IsEnabled = false;
         CopyPathButton.IsEnabled = false;
-        StatusText.Text = "Creating IIF file...";
+        StatusText.Text = AppStrings.CreatingIifFile;
         LogBox.Text = "";
 
         try
@@ -254,22 +261,22 @@ public partial class MainWindow : FluentWindow
             {
                 var message = string.Join(
                     Environment.NewLine,
-                    "The following IIF file already exists and will be replaced:",
+                    AppStrings.ReplaceFileMessageIntro,
                     "",
                     string.Join(Environment.NewLine, existingOutputPaths),
                     "",
-                    "Continue?");
+                    AppStrings.ContinuePrompt);
 
                 var choice = System.Windows.MessageBox.Show(
                     message,
-                    "Replace Existing IIF File",
+                    AppStrings.ReplaceFileDialogTitle,
                     System.Windows.MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
 
                 if (choice != System.Windows.MessageBoxResult.Yes)
                 {
-                    StatusText.Text = "Create IIF canceled.";
-                    LogBox.Text = "No files were changed.";
+                    StatusText.Text = AppStrings.CreateIifCanceled;
+                    LogBox.Text = AppStrings.NoFilesChanged;
                     return;
                 }
             }
@@ -281,15 +288,16 @@ public partial class MainWindow : FluentWindow
             _lastOutputPaths = result.OutputPaths;
             PreviewGrid.ItemsSource = result.PreviewRows;
 
-            StatusText.Text = "IIF file created.";
+            var processTypeDisplay = ProcessTypeOption.All.First(option => option.Value == input.ProcessType).DisplayText;
+            StatusText.Text = AppStrings.IifFileCreated;
             LogBox.Text = string.Join(
                 Environment.NewLine,
-                "Created QuickBooks IIF file.",
-                $"Output: {string.Join(Environment.NewLine, result.OutputPaths)}",
-                $"Processed {input.ProcessType.ToString().ToLowerInvariant()} rows: {result.ProcessedRows}",
-                $"Skipped rows: {result.SkippedRows}",
+                AppStrings.CreatedIifLog,
+                string.Format(AppStrings.OutputLog, string.Join(Environment.NewLine, result.OutputPaths)),
+                string.Format(AppStrings.ProcessedRowsLog, processTypeDisplay, result.ProcessedRows),
+                string.Format(AppStrings.SkippedRowsSummary, result.SkippedRows),
                 "",
-                "The output is plain tab-delimited text with an .iif extension.");
+                AppStrings.IifFormatNote);
             OpenFolderButton.IsEnabled = true;
             OpenIifButton.IsEnabled = _lastOutputPaths.Count == 1;
             CopyPathButton.IsEnabled = true;
@@ -297,7 +305,7 @@ public partial class MainWindow : FluentWindow
         }
         catch (Exception ex)
         {
-            StatusText.Text = "Could not create IIF file.";
+            StatusText.Text = AppStrings.CouldNotCreateIifFile;
             LogBox.Text = ex.Message;
         }
         finally
@@ -320,7 +328,7 @@ public partial class MainWindow : FluentWindow
             return;
         }
 
-        var psi = new ProcessStartInfo("explorer.exe") { UseShellExecute = true };
+        var psi = new ProcessStartInfo(ExplorerExecutable) { UseShellExecute = true };
         psi.ArgumentList.Add(directory);
         Process.Start(psi);
     }
@@ -332,7 +340,7 @@ public partial class MainWindow : FluentWindow
             return;
         }
 
-        var psi = new ProcessStartInfo("notepad.exe") { UseShellExecute = true };
+        var psi = new ProcessStartInfo(NotepadExecutable) { UseShellExecute = true };
         psi.ArgumentList.Add(_lastOutputPaths[0]);
         Process.Start(psi);
     }
@@ -345,6 +353,6 @@ public partial class MainWindow : FluentWindow
         }
 
         Clipboard.SetText(string.Join(Environment.NewLine, _lastOutputPaths));
-        StatusText.Text = "Output path copied to clipboard.";
+        StatusText.Text = AppStrings.OutputPathCopied;
     }
 }
