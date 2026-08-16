@@ -22,4 +22,8 @@
     <ProjectReference Include="..\RentToBooks.Core\RentToBooks.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
