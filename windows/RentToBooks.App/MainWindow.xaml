@@ -1,12 +1,94 @@
-﻿<Window x:Class="RentToBooks.App.MainWindow"
+<ui:FluentWindow x:Class="RentToBooks.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RentToBooks.App"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="RentToBooks" Height="820" Width="1020" MinHeight="740" MinWidth="860"
+        WindowStartupLocation="CenterScreen"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="150" />
+        </Grid.RowDefinitions>
 
+        <ui:TitleBar Grid.Row="0" Title="RentToBooks" />
+
+        <TextBlock Grid.Row="1" Text="RentToBooks" FontSize="24" FontWeight="Bold" Margin="18,0,18,4" />
+
+        <TextBlock Grid.Row="2" x:Name="StatusText"
+                   Text="Choose a rent transaction report and create a QuickBooks IIF file."
+                   Margin="18,0,18,14" Opacity="0.8" />
+
+        <Grid Grid.Row="3" Margin="18,0,18,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Rent report" VerticalAlignment="Center" Margin="0,6" />
+            <ui:TextBox Grid.Row="0" Grid.Column="1" x:Name="InputPathBox" Margin="0,6,8,6" />
+            <ui:Button Grid.Row="0" Grid.Column="2" Content="Browse..." Click="BrowseInput_Click" Margin="0,6" MinWidth="96" />
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Date" VerticalAlignment="Center" Margin="0,6" />
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,6">
+                <ui:TextBox x:Name="ProcessingDateBox" Width="140" />
+                <TextBlock Text="mmddyyyy" VerticalAlignment="Center" Margin="12,0,0,0" Opacity="0.6" />
+            </StackPanel>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Process" VerticalAlignment="Center" Margin="0,6" />
+            <ComboBox Grid.Row="2" Grid.Column="1" x:Name="ProcessTypeBox" Width="180" HorizontalAlignment="Left"
+                      Margin="0,6" SelectionChanged="ProcessTypeBox_SelectionChanged" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Output folder" VerticalAlignment="Center" Margin="0,6" />
+            <ui:TextBox Grid.Row="3" Grid.Column="1" x:Name="OutputPathBox" Margin="0,6,8,6" />
+            <ui:Button Grid.Row="3" Grid.Column="2" Content="Browse..." Click="BrowseOutput_Click" Margin="0,6" MinWidth="96" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="A/R account" VerticalAlignment="Center" Margin="0,6" />
+            <ui:TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" x:Name="ReceivableAccountBox" Margin="0,6" />
+
+            <TextBlock Grid.Row="5" Grid.Column="0" x:Name="DepositLabel" Text="Deposit account"
+                       VerticalAlignment="Center" Margin="0,6" />
+            <ui:TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" x:Name="DepositAccountBox" Margin="0,6" />
+
+            <TextBlock Grid.Row="6" Grid.Column="0" x:Name="IncomeLabel" Text="Income account"
+                       VerticalAlignment="Center" Margin="0,6" />
+            <ui:TextBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" x:Name="IncomeAccountBox" Margin="0,6" />
+        </Grid>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="18,0,18,14">
+            <ui:Button x:Name="PreviewButton" Content="Preview" Click="PreviewButton_Click" Margin="0,0,8,0" MinWidth="100" />
+            <ui:Button x:Name="CreateButton" Content="Create IIF" Click="CreateButton_Click" Margin="0,0,8,0" MinWidth="110" />
+            <ui:Button x:Name="OpenFolderButton" Content="Open Folder" Click="OpenFolderButton_Click" Margin="0,0,8,0" MinWidth="110" IsEnabled="False" />
+            <ui:Button x:Name="OpenIifButton" Content="Open IIF" Click="OpenIifButton_Click" Margin="0,0,8,0" MinWidth="100" IsEnabled="False" />
+            <ui:Button x:Name="CopyPathButton" Content="Copy Path" Click="CopyPathButton_Click" MinWidth="100" IsEnabled="False" />
+        </StackPanel>
+
+        <DataGrid Grid.Row="5" x:Name="PreviewGrid" Margin="18,0,18,14" AutoGenerateColumns="True"
+                  IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False"
+                  HeadersVisibility="Column" GridLinesVisibility="Horizontal" />
+
+        <ui:TextBox Grid.Row="6" x:Name="LogBox" Margin="18,0,18,18" IsReadOnly="True" TextWrapping="NoWrap"
+                    VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                    AcceptsReturn="True" FontFamily="Consolas" />
     </Grid>
-</Window>
+</ui:FluentWindow>
