@@ -27,9 +27,11 @@
 
         <TextBlock Grid.Row="1" Text="{x:Static res:AppStrings.HeadingText}" FontSize="24" FontWeight="Bold" Margin="18,0,18,4" />
 
-        <TextBlock Grid.Row="2" x:Name="StatusText"
-                   Text="{x:Static res:AppStrings.InitialStatus}"
-                   Margin="18,0,18,14" Opacity="0.8" />
+        <StackPanel Grid.Row="2" Margin="18,0,18,14">
+            <TextBlock x:Name="StatusText" Text="{x:Static res:AppStrings.InitialStatus}" Opacity="0.8" />
+            <ui:HyperlinkButton x:Name="UpdateNoticeButton" Click="UpdateNoticeButton_Click"
+                                 Visibility="Collapsed" Padding="0" Margin="0,4,0,0" HorizontalAlignment="Left" />
+        </StackPanel>
 
         <Grid Grid.Row="3" Margin="18,0,18,10">
             <Grid.ColumnDefinitions>

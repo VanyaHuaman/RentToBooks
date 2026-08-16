@@ -67,4 +67,6 @@
   <data name="ChooseOutputFolderFirst" xml:space="preserve"><value>Choose an output folder first.</value></data>
   <data name="EnterProcessingDate" xml:space="preserve"><value>Enter the processing date in mmddyyyy format, for example 06262026.</value></data>
   <data name="InvalidProcessingDate" xml:space="preserve"><value>Enter the date in mmddyyyy format, for example 06122026.</value></data>
+
+  <data name="UpdateAvailable" xml:space="preserve"><value>A new version ({0}) is available &#8212; click to download.</value></data>
 </root>

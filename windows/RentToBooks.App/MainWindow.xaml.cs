@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -19,6 +20,7 @@ public partial class MainWindow : FluentWindow
     private readonly AppSettingsStore _settingsStore = new();
     private AppSettings _settings;
     private IReadOnlyList<string> _lastOutputPaths = [];
+    private string? _updateReleaseUrl;
 
     public MainWindow()
     {
@@ -38,6 +40,33 @@ public partial class MainWindow : FluentWindow
                 : ProcessType.Payment));
 
         UpdateProcessAccountFields();
+
+        _ = CheckForUpdatesAsync();
+    }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        var currentVersion = Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(0, 0, 0);
+        var result = await UpdateChecker.CheckForUpdateAsync(currentVersion);
+
+        if (!result.IsUpdateAvailable || result.LatestVersion is null || result.ReleaseUrl is null)
+        {
+            return;
+        }
+
+        _updateReleaseUrl = result.ReleaseUrl;
+        UpdateNoticeButton.Content = string.Format(AppStrings.UpdateAvailable, $"v{result.LatestVersion}");
+        UpdateNoticeButton.Visibility = Visibility.Visible;
+    }
+
+    private void UpdateNoticeButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_updateReleaseUrl))
+        {
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo(_updateReleaseUrl) { UseShellExecute = true });
     }
 
     private ProcessType SelectedProcessType => ((ProcessTypeOption)ProcessTypeBox.SelectedItem).Value;

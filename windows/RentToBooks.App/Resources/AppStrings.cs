@@ -70,6 +70,8 @@ public static class AppStrings
     public static string EnterProcessingDate => Get(nameof(EnterProcessingDate));
     public static string InvalidProcessingDate => Get(nameof(InvalidProcessingDate));
 
+    public static string UpdateAvailable => Get(nameof(UpdateAvailable));
+
     private static string Get(string name) =>
         ResourceManager.GetString(name, CultureInfo.CurrentUICulture) ?? name;
 }
