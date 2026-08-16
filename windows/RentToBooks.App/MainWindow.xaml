@@ -10,7 +10,8 @@
         Title="{x:Static res:AppStrings.WindowTitle}" Height="820" Width="1020" MinHeight="740" MinWidth="860"
         WindowStartupLocation="CenterScreen"
         ExtendsContentIntoTitleBar="True"
-        WindowBackdropType="Mica">
+        WindowBackdropType="Mica"
+        Icon="Assets/app.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
